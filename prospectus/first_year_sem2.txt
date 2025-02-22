@@ -1,0 +1,11 @@
+SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
+GE3             The Contemporary World                                      3       none
+UGE1            Reading Comprehension                                       6       GE2
+EDUC103         Facilitating Learner Centered Teaching                      3       EDUC101
+EDUC104         Foundation of Special and Inclusive Education               3       none
+FIL121          Panimulang Linggwistika                                     3       FIL111
+FIL122          Ugnayan ng Wika, Kultura at Lipunan                         3       FIL111
+PAHF2           Exercise-based Fitness Activities                           2       PAHF1
+NSTP2           National Service Trainging Program 2                        3       NSTP1
+
+                                                            TOTAL UNITS:    26

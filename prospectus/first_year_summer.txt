@@ -1,0 +1,6 @@
+SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
+GE7             Art Appreciation                                            3       none
+LP100           Strategic Lesson Planning and Design                        3       none
+GE20            Reading Visual Arts                                         3       none
+
+                                                            TOTAL UNITS:    9
