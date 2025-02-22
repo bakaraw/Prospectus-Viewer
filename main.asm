@@ -40,9 +40,6 @@ main PROC
                jmp    year_input
 .ENDIF
               invoke StdOut, ADDR newline
-
-    ; calls the ReadFileProc procedure from txt_reader.inc
-    ; to read the contents of year.txt
     sem_input:
               invoke StdOut, ADDR prompt2
               invoke StdOut, ADDR sem1txt
