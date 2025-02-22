@@ -29,6 +29,7 @@ ReadFileProc PROC filename:DWORD
 
     ; Prints the contents of the buffer to the console
     invoke StdOut, ADDR buffer
+    
     ; Closes the file
     invoke CloseHandle, fileHandle
     ; Jumps to end_proc to end the program
