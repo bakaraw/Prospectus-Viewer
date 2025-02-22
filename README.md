@@ -1,6 +1,6 @@
 # Assembly project
 
-- enrollment system blah blah
+- shows the prospectus for Bachelor of Secondary Education major in Filipino
 
 ## How to build this assembly code
 
