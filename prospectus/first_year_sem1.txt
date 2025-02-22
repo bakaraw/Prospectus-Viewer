@@ -1,2 +1,11 @@
-GE1,Understanding the Self,3,none
-GE2,Purposive w/ Interactive Learning,6,none
+SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
+GE1             Understanding the Self                                      3       none
+GE2             Purposive w/ Interactive Learning                           6       none
+GE4             Mathematics in Modern World                                 3       none
+EDUC101         The Child and Adolescent Learners and Learning Principles   3       none
+EDUC102         Technology for Teaching and Learning 1                      3       none
+FIL111          Introduksyon Sa Pag-aaral ng Wika                           3       none
+PAHF1           Movement Competency Training                                2       none
+NSTP1           National Training Service Program 1                         3       none
+
+                                                            TOTAL UNITS:    26

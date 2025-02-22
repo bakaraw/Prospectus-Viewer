@@ -1,0 +1,12 @@
+SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
+GE6             Rizal's Life and Works                                      3       none
+FIL215          Malayuning Komunikasyon sa Wikang Filipino                  3       none
+EDUC105         Assessment of Learning 1                                    3       EDUC103
+GE11            The Entrepreneurial Mind                                    3       none
+FIL211          Estraktura ng Wikang Filipino                               3       FIL121
+FIL212          Ang Filipino sa Kurikulum ng Batayang Edukasyon             3       FIL121
+FIL213          Barayti at Baryasyon ng Wika                                3       FIL122
+FIL213          Panitikan ng Rehiyon                                        3       FIL122
+PAHF3           Dance and Sport 1                                           2       PAHF2
+
+                                                            TOTAL UNITS:    26

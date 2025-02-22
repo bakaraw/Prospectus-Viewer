@@ -1,26 +1,34 @@
 INCLUDE txt_reader.inc
 
 .DATA
-    first_year db 9, 9, 9, "First Year ", 0
-    second_year db 9, 9, 9, "Second Year ", 0
+    first_year db 9, 9, 9, 9, "First Year ", 0
+    second_year db 9, 9, 9, 9, "Second Year ", 0
     third_year db 9, 9, 9, "Third Year ", 0
     fourth_year db 9, 9, 9,"Fourth Year ", 0
-    sem1 db "Semester 1 ", 0
-    sem2 db "Semester 2 ", 0
+    sem1 db "1st Semester ", 0
+    sem2 db "2nd Semester ", 0
     summer db "Summer ", 0
     subjects db "Subjects: ", 10, 0
 
     first_year_sem1  db "prospectus\\first_year_sem1.txt", 0
     first_year_sem2  db "prospectus\\first_year_sem2.txt", 0
+    first_year_summer db "prospectus\\first_year_summer.txt", 0
+
     second_year_sem1 db "prospectus\\second_year_sem1.txt", 0
     second_year_sem2 db "prospectus\\second_year_sem2.txt", 0
+    second_year_summer db "prospectus\\second_year_summer.txt", 0
+
     third_year_sem1  db "prospectus\\third_year_sem1.txt", 0
     third_year_sem2  db "prospectus\\third_year_sem2.txt", 0
+    third_year_summer db "prospectus\\third_year_summer.txt", 0
+
     fourth_year_sem1 db "prospectus\\fourth_year_sem1.txt", 0
     fourth_year_sem2 db "prospectus\\fourth_year_sem2.txt", 0
+    fourth_year_summer db "prospectus\\fourth_year_summer.txt", 0
 
 .CODE
 ShowSubjects PROC year:DWORD, semester:DWORD
+invoke ClearScreen
     ; Prints the year
     .if year == 1
         invoke StdOut, ADDR first_year
@@ -48,18 +56,26 @@ ShowSubjects PROC year:DWORD, semester:DWORD
               invoke ReadFileProc, ADDR first_year_sem1
     .ELSEIF year == 1 && semester == 2
               invoke ReadFileProc, ADDR first_year_sem2
+    .ELSEIF year == 1 && semester == 3
+              invoke ReadFileProc, ADDR first_year_summer
     .ELSEIF year == 2 && semester == 1
               invoke ReadFileProc, ADDR second_year_sem1
     .ELSEIF year == 2 && semester == 2
               invoke ReadFileProc, ADDR second_year_sem2
+    .ELSEIF year == 2 && semester == 3
+              invoke ReadFileProc, ADDR second_year_summer
     .ELSEIF year == 3 && semester == 1
               invoke ReadFileProc, ADDR third_year_sem1
     .ELSEIF year == 3 && semester == 2
               invoke ReadFileProc, ADDR third_year_sem2
+    .ELSEIF year == 3 && semester == 3
+              invoke ReadFileProc, ADDR third_year_summer
     .ELSEIF year == 4 && semester == 1
               invoke ReadFileProc, ADDR fourth_year_sem1
     .ELSEIF year == 4 && semester == 2
               invoke ReadFileProc, ADDR fourth_year_sem2
+    .ELSEIF year == 4 && semester == 3
+              invoke ReadFileProc, ADDR fourth_year_summer
     .ENDIF
     ret
 ShowSubjects ENDP

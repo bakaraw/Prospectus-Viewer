@@ -3,7 +3,7 @@
 
 .DATA
     error_msg db "Error opening file", 0
-    buffer db 512 dup(?)
+    buffer db 512*3 dup(?)
     bytesRead dd ?
     wordBuffer db 512 dup(?)
     comma db ",", 0
@@ -24,11 +24,13 @@ ReadFileProc PROC filename:DWORD
         je error_exit
     .endif
 
+    invoke RtlZeroMemory, ADDR buffer, SIZEOF buffer
     ; Reads the file and stores the contents in the buffer
     invoke ReadFile, fileHandle, ADDR buffer, SIZEOF buffer, ADDR bytesRead, NULL
 
     ; Prints the contents of the buffer to the console
     invoke StdOut, ADDR buffer
+    invoke StdOut, ADDR newline
     
     ; Closes the file
     invoke CloseHandle, fileHandle
