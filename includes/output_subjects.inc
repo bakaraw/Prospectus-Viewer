@@ -44,21 +44,21 @@ ShowSubjects PROC year:DWORD, semester:DWORD
     invoke StdOut, ADDR subjects
     ; Prints the subjects
     ; ReadFileProc "subjects.txt"
-    .IF yearNum == 1 && semNum == 1
+    .IF year == 1 && semester == 1
               invoke ReadFileProc, ADDR first_year_sem1
-    .ELSEIF yearNum == 1 && semNum == 2
+    .ELSEIF year == 1 && semester == 2
               invoke ReadFileProc, ADDR first_year_sem2
-    .ELSEIF yearNum == 2 && semNum == 1
+    .ELSEIF year == 2 && semester == 1
               invoke ReadFileProc, ADDR second_year_sem1
-    .ELSEIF yearNum == 2 && semNum == 2
+    .ELSEIF year == 2 && semester == 2
               invoke ReadFileProc, ADDR second_year_sem2
-    .ELSEIF yearNum == 3 && semNum == 1
+    .ELSEIF year == 3 && semester == 1
               invoke ReadFileProc, ADDR third_year_sem1
-    .ELSEIF yearNum == 3 && semNum == 2
+    .ELSEIF year == 3 && semester == 2
               invoke ReadFileProc, ADDR third_year_sem2
-    .ELSEIF yearNum == 4 && semNum == 1
+    .ELSEIF year == 4 && semester == 1
               invoke ReadFileProc, ADDR fourth_year_sem1
-    .ELSEIF yearNum == 4 && semNum == 2
+    .ELSEIF year == 4 && semester == 2
               invoke ReadFileProc, ADDR fourth_year_sem2
     .ENDIF
     ret
