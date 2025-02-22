@@ -24,3 +24,9 @@ ml /c /coff .\main.asm
 link /subsystem:console .\main.obj
 .\main.exe
 ```
+
+## About the project structure
+
+- naa tay folder na `includes\` kani na folder diri naka butang ang mga helper function like text file reader og sa pag output sa subjects every year and semester
+
+- naa pud `prospectus\` na folder. Diri nakabutang ang mga text file sa subjects every year and semester
