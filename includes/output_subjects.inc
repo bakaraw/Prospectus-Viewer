@@ -20,11 +20,9 @@ INCLUDE txt_reader.inc
 
     third_year_sem1  db "prospectus\\third_year_sem1.txt", 0
     third_year_sem2  db "prospectus\\third_year_sem2.txt", 0
-    third_year_summer db "prospectus\\third_year_summer.txt", 0
 
     fourth_year_sem1 db "prospectus\\fourth_year_sem1.txt", 0
     fourth_year_sem2 db "prospectus\\fourth_year_sem2.txt", 0
-    fourth_year_summer db "prospectus\\fourth_year_summer.txt", 0
 
 .CODE
 ShowSubjects PROC year:DWORD, semester:DWORD
@@ -68,14 +66,10 @@ invoke ClearScreen
               invoke ReadFileProc, ADDR third_year_sem1
     .ELSEIF year == 3 && semester == 2
               invoke ReadFileProc, ADDR third_year_sem2
-    .ELSEIF year == 3 && semester == 3
-              invoke ReadFileProc, ADDR third_year_summer
     .ELSEIF year == 4 && semester == 1
               invoke ReadFileProc, ADDR fourth_year_sem1
     .ELSEIF year == 4 && semester == 2
               invoke ReadFileProc, ADDR fourth_year_sem2
-    .ELSEIF year == 4 && semester == 3
-              invoke ReadFileProc, ADDR fourth_year_summer
     .ENDIF
     ret
 ShowSubjects ENDP
