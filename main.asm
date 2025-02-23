@@ -59,10 +59,20 @@ main PROC
               invoke atodw, ADDR inputBuffer
               mov    semNum, eax
               invoke dwtoa, semNum, ADDR inputBuffer
-        ; loops when the user enters a value that is not in the range of 1-3
-        .if semNum < 1 || semNum > 3
-              jmp    sem_input
+              
+            ; if the student is in 1st and 2nd year
+        .if yearNum < 3
+            ; loops when the user enters a value that is not in the range of 1-3
+            .if semNum < 1 || semNum > 3
+                  jmp    sem_input
+            .endif
+            ; if the student is in 3rd and 4th year
+        .else
+            .if semNum < 1 || semNum > 2
+                  jmp    sem_input
+            .endif
         .endif
+        
 
           invoke dwtoa, semNum, ADDR inputBuffer
           invoke ShowSubjects, yearNum, semNum
