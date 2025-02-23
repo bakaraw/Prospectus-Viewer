@@ -1,0 +1,11 @@
+SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
+GE15            Environmental Science                                       3       none
+FIL412          Introduksyon sa Pananaliksik - Wika at Panitikan 1          3       EDUC107
+FIL311          Sanaysay at Talumpati                                       3       FIL222
+FIL312          Maikling Kwento at Nobelang Filipino                        3       FIL222
+FIL313          Panulaang Filipino                                          3       FIL222
+FIL314          Pagtuturo at Pagtataya ng Makrong Kasanayang Pangwika       3       EDUC107
+FIL315          Dulaang Filipino                                            3       FIL222
+FIL316          Malikhaing Pagsulat                                         3       FIL211
+
+                                                            TOTAL UNITS:    24
