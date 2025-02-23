@@ -1,0 +1,11 @@
+SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
+FIL200/L        Technology for Teaching and Learning 2 - Filipino           3       EDUC105
+CAED500c        Career and Personality Development                          3       3rd year standing
+FIL413          Introduksyon sa Pananaliksik - Wika at Panitikan 2          3       FIL412
+FIL321          Paghahanda at Ebalwasyon ng Kagamitang Panturo              3       FIL412
+FIL322          Panunuring Pampanitikan                                     3       FIL316
+FIL323          Introduksyon sa Pamamahayag                                 3       FIL211
+FIL324          Mga Natatanging Diskurso sa Wika at Panitikan               3       FIL211
+FIL325          Filipino Para sa Natatanging Gamit                          3       FIL211
+
+                                                            TOTAL UNITS:    23

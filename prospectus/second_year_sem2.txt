@@ -6,7 +6,7 @@ EDUC107         Assessment of Learning 2                                        
 EDUC108         Building and Enhancing New Literacies Across the Curriculum                     3       none
 FIL221          Introduksyon sa Pagsasalin                                                      3       FIL211
 FIL222          Kulturang Popular                                                               3       FIL122
-EDUC106         The Teacher and the School Curriculum                                           3       FIL122
+EDUC106         The Teacher and the School Curriculum                                           3       none
 PAHF4           Dance and Sport 2                                                               2       PAHF3
 
                                                                                 TOTAL UNITS:    26

@@ -1,0 +1,5 @@
+SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
+GE9             Ethics (Disciplinal)                                        3       none
+EDUC109         The Teaching Profession                                     3       none
+
+                                                            TOTAL UNITS:    6

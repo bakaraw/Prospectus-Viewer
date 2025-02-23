@@ -52,7 +52,9 @@ main PROC
               invoke StdOut, ADDR prompt2
               invoke StdOut, ADDR sem1txt
               invoke StdOut, ADDR sem2txt
-              invoke StdOut, ADDR sem3txt
+              .if yearNum < 3
+                  invoke StdOut, ADDR sem3txt
+              .endif
               invoke StdIn, ADDR inputBuffer, SIZEOF inputBuffer
               invoke atodw, ADDR inputBuffer
               mov    semNum, eax
