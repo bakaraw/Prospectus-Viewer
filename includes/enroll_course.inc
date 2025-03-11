@@ -15,11 +15,9 @@
     select_prompt   db "Enter subject code to enroll (0 to finish): ", 0
     selected_header db "Selected Subjects:", 10, 0
     code_separator  db ", ", 0
-    press_key      db "Press any key to continue...", 0
-    invalid_input  db "Invalid input. Please try again.", 10, 0
     ; Remove this commented line entirely, as it's causing confusion
     ; newline        db 13, 10, 0
-
+    return_or_exit db "Press 1 to return to main menu, 2 to exit: ", 0
     ; Buffer for storing selected subject codes
     MAX_SELECTIONS  EQU 9
     MAX_CODE_LEN    EQU 10
@@ -38,6 +36,9 @@
     ;newline          db 13, 10, 0  ; Define newline
     ; File reading variables
     bytes_read     dd 0                ; Renamed to avoid conflict
+
+
+
 .DATA?
     enroll_buffer  db 4 dup(?)
     subject_buffer db 4096 dup(?)      ; Increased buffer size for subjects
@@ -449,6 +450,7 @@ SelectSubjects PROC
     mov eax, ebx    ; Total units count
     invoke dwtoa, eax, ADDR temp_buffer
     invoke StdOut, ADDR temp_buffer
+    
     pop eax
     
     ; Add extra space before prompt
@@ -535,8 +537,12 @@ EnrollCourse PROC yearNum:DWORD
     
     ; Load the subject file for the selected year
     .IF yearNum == 1
+
         invoke LoadSubjectFile, ADDR first_year_sem1
+            invoke StdOut, ADDR newline
         invoke LoadSubjectFile, ADDR first_year_sem2
+            invoke StdOut, ADDR newline
+
         invoke LoadSubjectFile, ADDR first_year_summer
         invoke ClearScreen
 
@@ -560,17 +566,28 @@ EnrollCourse PROC yearNum:DWORD
     
     ; Display available subjects
     invoke StdOut, ADDR newline
-    invoke StdOut, ADDR subject_header
-    invoke StdOut, ADDR line_separator
     invoke StdOut, ADDR subject_buffer
     invoke StdOut, ADDR newline
     
     ; Handle subject selection
     invoke SelectSubjects
     
-    ; Wait for user input
-    invoke StdOut, ADDR press_key
+
+    ; Wait for user input with options
+    invoke StdOut, ADDR newline
+    invoke StdOut, ADDR return_or_exit  ; Replace the press_key prompt
     invoke StdIn, ADDR enroll_buffer, SIZEOF enroll_buffer
     
+    ; Check user's choice
+    mov al, [enroll_buffer]
+    
+    .IF al == '1'
+        ; Return to main menu - just return from procedure
+    .ELSEIF al == '2'
+        ; Exit the program
+        invoke ExitProcess, 0
+    .ELSE
+        ; Invalid input, just continue (return)
+    .ENDIF
     ret
 EnrollCourse ENDP
