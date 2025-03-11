@@ -1,3 +1,4 @@
+
 SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
 ED421           Teaching Internship                                         6       FS1, FS2, CA501, CA502
 CA503           Specialization                                              5       FS1, FS2, CA501, CA502
