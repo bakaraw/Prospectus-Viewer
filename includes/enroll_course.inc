@@ -52,9 +52,11 @@
 FindSubjectDetails PROC uses esi edi ebx subject_code:PTR BYTE
     LOCAL found:DWORD
     LOCAL line_start:DWORD
+    LOCAL units_value:DWORD
     
     mov found, 0
     mov esi, OFFSET subject_buffer
+    mov units_value, 0  ; Initialize units to 0
     
 @search_line:
     ; Save current position as potential line start
@@ -128,6 +130,35 @@ FindSubjectDetails PROC uses esi edi ebx subject_code:PTR BYTE
     mov found, 1
     pop esi                ; Get start of subject code
     
+    ; Extract units from the line (around column 70-74)
+    mov edi, line_start
+    add edi, 70            ; Approximate position of units column
+    
+    ; Find the units value
+@find_units:
+    mov al, [edi]
+    cmp al, 0              ; End of buffer?
+    je @copy_line
+    cmp al, 0Ah            ; End of line?
+    je @copy_line
+    
+    ; Check if this is a digit
+    cmp al, '0'
+    jb @next_units_char
+    cmp al, '9'
+    ja @next_units_char
+    
+    ; Found a digit - extract the units value
+    sub al, '0'            ; Convert ASCII to number
+    movzx eax, al
+    mov units_value, eax
+    jmp @copy_line
+    
+@next_units_char:
+    inc edi
+    jmp @find_units
+    
+@copy_line:
     ; Better approach: copy the entire line to temp_buffer and print at once
     lea edi, [temp_buffer]  ; Use temp buffer for storing the line
     mov esi, line_start    ; Start from beginning of line
@@ -151,13 +182,18 @@ FindSubjectDetails PROC uses esi edi ebx subject_code:PTR BYTE
     ; Print the entire line
     invoke StdOut, ADDR temp_buffer
     invoke StdOut, ADDR newline
+    
+    ; Return the units value in eax
+    mov eax, found
     jmp @exit
     
 @not_found:
     ; Don't show error when printing final list
+    mov eax, 0
     
 @exit:
-    mov eax, found
+    ; Return units value in edx
+    mov edx, units_value
     ret
 FindSubjectDetails ENDP
 
@@ -379,6 +415,9 @@ SelectSubjects PROC
     ; Show only selected subjects
     xor ecx, ecx
     
+    ; Initialize total units counter
+    mov ebx, 0  ; Use ebx to track total units
+    
 @display_loop:
     cmp ecx, code_count
     jge @done
@@ -390,7 +429,11 @@ SelectSubjects PROC
     
     ; Display subject details
     push ecx
+    push ebx        ; Save current units count
     invoke FindSubjectDetails, eax
+    ; Units value is now in edx
+    pop ebx         ; Restore units count
+    add ebx, edx    ; Add units from this subject
     pop ecx
     
     inc ecx
@@ -399,7 +442,14 @@ SelectSubjects PROC
 @done:
     ; Add a separator line and units calculation
     invoke StdOut, ADDR newline
-    invoke StdOut, ADDR total_units_line    ; Add this to your .DATA section
+    invoke StdOut, ADDR total_units_line
+    
+    ; Convert total units to string and display
+    push eax
+    mov eax, ebx    ; Total units count
+    invoke dwtoa, eax, ADDR temp_buffer
+    invoke StdOut, ADDR temp_buffer
+    pop eax
     
     ; Add extra space before prompt
     invoke StdOut, ADDR newline
