@@ -17,7 +17,8 @@
     code_separator  db ", ", 0
     press_key      db "Press any key to continue...", 0
     invalid_input  db "Invalid input. Please try again.", 10, 0
-    ;newline        db 13, 10, 0
+    ; Remove this commented line entirely, as it's causing confusion
+    ; newline        db 13, 10, 0
 
     ; Buffer for storing selected subject codes
     MAX_SELECTIONS  EQU 9
@@ -31,7 +32,11 @@
     subject_header  db "SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES", 0ah, 0
     line_separator  db "================================================================================", 0ah, 0
     subject_error   db "Subject code not found!", 0ah, 0
-
+    
+    ; Keep these definitions
+    total_units_line db "                                                            TOTAL UNITS:    ", 0
+    ;newline          db 13, 10, 0  ; Define newline
+    
     ; File reading variables
     bytes_read     dd 0                ; Renamed to avoid conflict
 .DATA?
@@ -136,21 +141,116 @@ FindSubjectDetails PROC uses esi edi ebx subject_code:PTR BYTE
     inc edi                ; Move past newline
     
 @print_line:
-    ; Print the entire line
+    ; Print the entire line with extra spacing
     push edi
     invoke StdOut, edi
     invoke StdOut, ADDR newline
+    invoke StdOut, ADDR newline  ; Add an extra blank line between subjects
     pop edi
     jmp @exit
     
 @not_found:
-    invoke StdOut, ADDR subject_error
+    ; Don't show error when printing final list
     
 @exit:
     mov eax, found
     ret
 FindSubjectDetails ENDP
 
+; New procedure that finds a subject but doesn't display it
+FindSubjectDetailsQuiet PROC uses esi edi ebx subject_code:PTR BYTE
+    LOCAL found:DWORD
+    
+    mov found, 0
+    mov esi, OFFSET subject_buffer
+    
+    ; Search line by line
+@search_line:
+    mov edi, esi            ; Save line start
+    
+    ; Check if end of buffer
+    cmp byte ptr [esi], 0
+    je @not_found
+    
+    ; Skip leading spaces/numbers
+@skip_prefix:
+    mov al, [esi]
+    cmp al, 0ah            ; New line?
+    je @next_line
+    cmp al, 0              ; End of buffer?
+    je @not_found
+    
+    ; Check if this might be a subject code
+    cmp al, 'A'
+    jl @not_code_start
+    cmp al, 'Z'
+    jle @compare_code      ; Uppercase letter - possible code
+    cmp al, 'a'
+    jl @not_code_start
+    cmp al, 'z'
+    jle @compare_code      ; Lowercase letter - possible code
+    
+@not_code_start:
+    inc esi
+    jmp @skip_prefix
+    
+@compare_code:
+    ; Compare with subject code
+    mov edi, subject_code
+    push esi               ; Save start position
+    
+@compare_loop:
+    mov al, [edi]
+    test al, al            ; End of input?
+    jz @possible_match
+    
+    mov bl, [esi]
+    cmp al, bl
+    jne @no_match
+    
+    inc esi
+    inc edi
+    jmp @compare_loop
+    
+@no_match:
+    pop esi                ; Restore position
+    
+@next_line:
+    ; Move to next line
+    @find_eol:
+    mov al, [esi]
+    inc esi
+    test al, al            ; End of buffer?
+    jz @not_found
+    cmp al, 0ah            ; New line?
+    jne @find_eol
+    jmp @search_line
+    
+@possible_match:
+    ; Check if followed by space
+    mov al, [esi]
+    cmp al, ' '
+    je @match_found
+    
+    pop esi                ; Not a match, restore position
+    jmp @next_line
+    
+@match_found:
+    mov found, 1
+    pop esi                ; Get start of code
+    jmp @exit
+    
+@not_found:
+    ; Only display error message if needed
+    invoke StdOut, ADDR subject_error
+    
+@exit:
+    mov eax, found
+    ret
+FindSubjectDetailsQuiet ENDP
+
+; Modified SelectSubjects procedure to show only selected subjects
+; Modified SelectSubjects procedure with improved formatting
 SelectSubjects PROC
     push ebx
     push esi
@@ -173,8 +273,52 @@ SelectSubjects PROC
     cmp BYTE PTR [input_buffer], '0'
     je @show_final
     
-    ; Try to find subject (just check it exists, don't display it)
-    invoke FindSubjectDetails, ADDR input_buffer
+    ; Check if subject already in list
+    mov ecx, 0
+@check_duplicate:
+    cmp ecx, code_count
+    jge @not_duplicate
+    
+    ; Compare with existing codes
+    push esi
+    push edi
+    
+    mov eax, ecx
+    imul eax, MAX_CODE_LEN
+    lea esi, [selected_codes + eax]
+    lea edi, [input_buffer]
+    
+@compare_existing:
+    mov al, [esi]
+    mov bl, [edi]
+    
+    test al, al
+    jz @codes_match         ; End of first code
+    test bl, bl
+    jz @next_code          ; End of input code
+    
+    cmp al, bl
+    jne @next_code
+    
+    inc esi
+    inc edi
+    jmp @compare_existing
+    
+@codes_match:
+    ; Duplicate found, just continue
+    pop edi
+    pop esi
+    jmp @input_loop
+    
+@next_code:
+    pop edi
+    pop esi
+    inc ecx
+    jmp @check_duplicate
+    
+@not_duplicate:
+    ; Try to find subject without displaying it
+    invoke FindSubjectDetailsQuiet, ADDR input_buffer
     cmp eax, 1                  ; Was subject found?
     jne @input_loop            ; If not, try again
     
@@ -205,8 +349,8 @@ SelectSubjects PROC
     mov BYTE PTR [edi], 0      ; Null terminate
     inc code_count
     
-    ; Confirm subject added
-    invoke StdOut, ADDR newline
+    ; Show current selection count with double newline for clarity
+    invoke StdOut, ADDR newline    ; Add extra newline for clarity
     invoke StdOut, ADDR selected_header
     
     ; Show current selections count
@@ -217,16 +361,18 @@ SelectSubjects PROC
     invoke StdOut, ADDR code_separator
     pop eax
     
+    invoke StdOut, ADDR newline    ; Add extra newline for clarity
     jmp @input_loop
     
 @show_final:
-    ; Display final list header
+    ; Display final list header with extra spacing
     invoke ClearScreen
     invoke StdOut, ADDR final_list
+    invoke StdOut, ADDR newline    ; Add extra newline for clarity
     invoke StdOut, ADDR subject_header
     invoke StdOut, ADDR line_separator
     
-    ; Show all selected subjects
+    ; Show only selected subjects
     xor ecx, ecx
     
 @display_loop:
@@ -247,6 +393,12 @@ SelectSubjects PROC
     jmp @display_loop
     
 @done:
+    ; Add a separator line and units calculation
+    invoke StdOut, ADDR newline
+    invoke StdOut, ADDR total_units_line    ; Add this to your .DATA section
+    
+    ; Add extra space before prompt
+    invoke StdOut, ADDR newline
     invoke StdOut, ADDR newline
     pop edi
     pop esi
