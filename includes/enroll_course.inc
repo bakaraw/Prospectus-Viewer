@@ -36,7 +36,6 @@
     ; Keep these definitions
     total_units_line db "                                                            TOTAL UNITS:    ", 0
     ;newline          db 13, 10, 0  ; Define newline
-    
     ; File reading variables
     bytes_read     dd 0                ; Renamed to avoid conflict
 .DATA?
@@ -44,109 +43,114 @@
     subject_buffer db 4096 dup(?)      ; Increased buffer size for subjects
     input_buffer   db 20 dup(?)        ; Buffer for subject code input
     temp_buffer    db 100 dup(?)       ; Temporary buffer for output formatting
+     ;   newline          db 13, 10, 0  ; Define newline
+
 
 .CODE
 
 ; Completely revised FindSubjectDetails procedure
 FindSubjectDetails PROC uses esi edi ebx subject_code:PTR BYTE
     LOCAL found:DWORD
+    LOCAL line_start:DWORD
     
     mov found, 0
     mov esi, OFFSET subject_buffer
     
-    ; Search line by line
 @search_line:
-    mov edi, esi            ; Save line start
+    ; Save current position as potential line start
+    mov line_start, esi
     
     ; Check if end of buffer
     cmp byte ptr [esi], 0
     je @not_found
     
-    ; Skip leading spaces/numbers
-@skip_prefix:
+    ; Skip line numbers and spaces
+@skip_spaces:
     mov al, [esi]
-    cmp al, 0ah            ; New line?
+    cmp al, 0Ah            ; New line?
     je @next_line
     cmp al, 0              ; End of buffer?
     je @not_found
     
-    ; Check if this might be a subject code
+    ; Look for subject code start
     cmp al, 'A'
-    jl @not_code_start
+    jb @not_code_char
     cmp al, 'Z'
-    jle @compare_code      ; Uppercase letter - possible code
+    jbe @potential_code    ; Found uppercase letter
     cmp al, 'a'
-    jl @not_code_start
+    jb @not_code_char
     cmp al, 'z'
-    jle @compare_code      ; Lowercase letter - possible code
+    jbe @potential_code    ; Found lowercase letter
     
-@not_code_start:
+@not_code_char:
     inc esi
-    jmp @skip_prefix
+    jmp @skip_spaces
     
-@compare_code:
-    ; Compare with subject code
+@potential_code:
+    ; Compare with input subject code
     mov edi, subject_code
-    push esi               ; Save start position
+    push esi               ; Save start of code
     
-@compare_loop:
+@code_compare_loop:
     mov al, [edi]
-    test al, al            ; End of input?
-    jz @possible_match
-    
     mov bl, [esi]
+    
+    test al, al            ; End of input code?
+    jz @end_of_input_code
+    
     cmp al, bl
-    jne @no_match
+    jne @code_mismatch
     
     inc esi
     inc edi
-    jmp @compare_loop
+    jmp @code_compare_loop
     
-@no_match:
+@end_of_input_code:
+    ; Check if end of code in subject list (space should follow)
+    cmp bl, ' '
+    je @found_match
+    
+@code_mismatch:
     pop esi                ; Restore position
     
 @next_line:
-    ; Move to next line
-    @find_eol:
+    ; Find end of current line
+@find_eol:
     mov al, [esi]
     inc esi
     test al, al            ; End of buffer?
     jz @not_found
-    cmp al, 0ah            ; New line?
+    cmp al, 0Ah            ; New line?
     jne @find_eol
     jmp @search_line
     
-@possible_match:
-    ; Check if followed by space
-    mov al, [esi]
-    cmp al, ' '
-    je @match_found
-    
-    pop esi                ; Not a match, restore position
-    jmp @next_line
-    
-@match_found:
+@found_match:
     mov found, 1
-    pop esi                ; Get start of code
-    mov edi, esi            ; Save for printing
+    pop esi                ; Get start of subject code
     
-    ; Go to start of line
-    @find_line_start:
-    dec edi
-    cmp edi, OFFSET subject_buffer
-    jb @print_line         ; If at start of buffer, print line
-    mov al, [edi]
-    cmp al, 0ah            ; Previous line?
-    jne @find_line_start
-    inc edi                ; Move past newline
+    ; Better approach: copy the entire line to temp_buffer and print at once
+    lea edi, [temp_buffer]  ; Use temp buffer for storing the line
+    mov esi, line_start    ; Start from beginning of line
     
-@print_line:
-    ; Print the entire line with extra spacing
-    push edi
-    invoke StdOut, edi
+@copy_line_loop:
+    mov al, [esi]
+    test al, al            ; End of buffer?
+    jz @copy_done
+    cmp al, 0Ah            ; End of line?
+    je @copy_done
+    
+    ; Copy character to temp_buffer
+    mov [edi], al
+    inc esi
+    inc edi
+    jmp @copy_line_loop
+    
+@copy_done:
+    mov byte ptr [edi], 0  ; Null-terminate
+    
+    ; Print the entire line
+    invoke StdOut, ADDR temp_buffer
     invoke StdOut, ADDR newline
-    invoke StdOut, ADDR newline  ; Add an extra blank line between subjects
-    pop edi
     jmp @exit
     
 @not_found:
