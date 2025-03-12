@@ -37,7 +37,11 @@
     ; File reading variables
     bytes_read     dd 0                ; Renamed to avoid conflict
 
-
+    enhanced_options db "Choose an option:", 13, 10
+                     db "1. Return to Semester Menu", 13, 10
+                     db "2. Enroll more subjects (same year)", 13, 10
+                     db "3. Exit program", 13, 10
+                     db "Enter choice: ", 0
 
 .DATA?
     enroll_buffer  db 4 dup(?)
@@ -450,7 +454,6 @@ SelectSubjects PROC
     mov eax, ebx    ; Total units count
     invoke dwtoa, eax, ADDR temp_buffer
     invoke StdOut, ADDR temp_buffer
-    
     pop eax
     
     ; Add extra space before prompt
@@ -511,6 +514,7 @@ EnrollCourse PROC yearNum:DWORD
     ; Initialize code count
     mov code_count, 0
     
+@enroll_start:    ; Add this label for the option to restart enrollment
     ; Clear previous selections
     push edi
     mov edi, OFFSET selected_codes
@@ -537,7 +541,7 @@ EnrollCourse PROC yearNum:DWORD
     
     ; Load the subject file for the selected year
     .IF yearNum == 1
-
+    
         invoke LoadSubjectFile, ADDR first_year_sem1
             invoke StdOut, ADDR newline
         invoke LoadSubjectFile, ADDR first_year_sem2
@@ -575,7 +579,7 @@ EnrollCourse PROC yearNum:DWORD
 
     ; Wait for user input with options
     invoke StdOut, ADDR newline
-    invoke StdOut, ADDR return_or_exit  ; Replace the press_key prompt
+    invoke StdOut, ADDR enhanced_options  ; Replace the press_key prompt
     invoke StdIn, ADDR enroll_buffer, SIZEOF enroll_buffer
     
     ; Check user's choice
@@ -583,11 +587,18 @@ EnrollCourse PROC yearNum:DWORD
     
     .IF al == '1'
         ; Return to main menu - just return from procedure
+                  invoke ClearScreen
+
     .ELSEIF al == '2'
         ; Exit the program
-        invoke ExitProcess, 0
+          jmp @enroll_start
+          invoke ClearScreen
     .ELSE
-        ; Invalid input, just continue (return)
+              invoke ClearScreen
+
+      invoke ExitProcess, 0
     .ENDIF
     ret
+
+    
 EnrollCourse ENDP
