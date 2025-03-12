@@ -1,3 +1,4 @@
+
 SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
 GE6             Rizal's Life and Works                                      3       none
 FIL215          Malayuning Komunikasyon sa Wikang Filipino                  3       none

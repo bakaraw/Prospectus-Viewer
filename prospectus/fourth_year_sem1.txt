@@ -1,3 +1,4 @@
+
 SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
 FS1             Field Study 1 (1st T)                                       3       FIL413
 FS2             Field Study 2 (2nd T)                                       3       FIL413

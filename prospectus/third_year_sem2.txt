@@ -1,3 +1,4 @@
+
 SUBJECT CODE    SUBJECT TITLE                                               UNITS   PREREQUISITES
 FIL200/L        Technology for Teaching and Learning 2 - Filipino           3       EDUC105
 CAED500c        Career and Personality Development                          3       3rd year standing
