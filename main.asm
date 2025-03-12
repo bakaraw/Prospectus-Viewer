@@ -14,6 +14,7 @@ INCLUDE includes\output_subjects.inc
 INCLUDE includes\enroll_course.inc   ; Include enroll functionality
 
 .DATA
+
     dept        db 9, 9, 9, "  College of Teacher Education", 10, 0
     header      db 9, 9, 9, "Bachelor of Secondary Education", 10, 0
     header2     db 9, 9, 9, "       Major in Filipino", 10, 10, 0
@@ -37,8 +38,9 @@ INCLUDE includes\enroll_course.inc   ; Include enroll functionality
     semNum      dd ?
 
 .CODE
+
 main PROC
-    year_input:
+year_input PROC ;
                invoke ClearScreen
                invoke StdOut, ADDR dept
                invoke StdOut, ADDR header
@@ -100,5 +102,7 @@ main PROC
     .endif
 
           invoke ExitProcess, 0
+year_input ENDP
 main ENDP
+
 END main

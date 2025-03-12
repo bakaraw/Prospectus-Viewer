@@ -1,4 +1,6 @@
 ; Enrollment course functionality
+
+
 .DATA
     enroll_header  db 9, 9, 9, "Enrollment for ", 0
     
@@ -37,11 +39,12 @@
     ; File reading variables
     bytes_read     dd 0                ; Renamed to avoid conflict
 
-    enhanced_options db "Choose an option:", 13, 10
-                     db "1. Return to Semester Menu", 13, 10
-                     db "2. Enroll more subjects (same year)", 13, 10
-                     db "3. Exit program", 13, 10
-                     db "Enter choice: ", 0
+enhanced_options db "Choose an option:", 13, 10
+                 db "1. Return to Semester List", 13, 10
+                 db "2. Enroll more subjects (same year)", 13, 10
+                 db "3. Back to Year Selection", 13, 10
+                 db "4. Exit program", 13, 10
+                 db "Enter choice: ", 0
 
 .DATA?
     enroll_buffer  db 4 dup(?)
@@ -52,6 +55,8 @@
 
 
 .CODE
+
+EXTERNDEF year_input:PROC  ; 
 
 ; Completely revised FindSubjectDetails procedure
 FindSubjectDetails PROC uses esi edi ebx subject_code:PTR BYTE
@@ -301,8 +306,8 @@ SelectSubjects PROC
     push esi
     push edi
 
-    ; Reset selection counter
-    mov code_count, 0
+    ; We're not resetting code_count here anymore
+    ; This allows adding more subjects to existing selections
 
 @input_loop:
     ; Check if maximum subjects reached
@@ -508,20 +513,30 @@ LoadSubjectFile PROC filePathAddr:DWORD
     xor eax, eax  ; Failure
     ret
 LoadSubjectFile ENDP
-
 ; Main enrollment procedure (fixed parameter list)
 EnrollCourse PROC yearNum:DWORD
-    ; Initialize code count
-    mov code_count, 0
+    LOCAL preserve_selections:DWORD
+    
+    ; Initialize preserve flag
+    mov preserve_selections, 0
     
 @enroll_start:    ; Add this label for the option to restart enrollment
-    ; Clear previous selections
-    push edi
-    mov edi, OFFSET selected_codes
-    mov ecx, MAX_SELECTIONS * MAX_CODE_LEN
-    mov al, 0
-    rep stosb
-    pop edi
+    ; Only clear selections if not preserving them
+    .IF preserve_selections == 0
+        ; Initialize code count
+        mov code_count, 0
+        
+        ; Clear previous selections
+        push edi
+        mov edi, OFFSET selected_codes
+        mov ecx, MAX_SELECTIONS * MAX_CODE_LEN
+        mov al, 0
+        rep stosb
+        pop edi
+    .ENDIF
+    
+    ; Reset preserve flag
+    mov preserve_selections, 0
     
     invoke ClearScreen
     invoke StdOut, ADDR enroll_header
@@ -541,31 +556,25 @@ EnrollCourse PROC yearNum:DWORD
     
     ; Load the subject file for the selected year
     .IF yearNum == 1
-    
         invoke LoadSubjectFile, ADDR first_year_sem1
-            invoke StdOut, ADDR newline
+        invoke StdOut, ADDR newline
         invoke LoadSubjectFile, ADDR first_year_sem2
-            invoke StdOut, ADDR newline
-
+        invoke StdOut, ADDR newline
         invoke LoadSubjectFile, ADDR first_year_summer
         invoke ClearScreen
-
     .ELSEIF yearNum == 2
         invoke LoadSubjectFile, ADDR second_year_sem1
         invoke LoadSubjectFile, ADDR second_year_sem2
         invoke LoadSubjectFile, ADDR second_year_summer
-                invoke ClearScreen
-
+        invoke ClearScreen
     .ELSEIF yearNum == 3
         invoke LoadSubjectFile, ADDR third_year_sem1
         invoke LoadSubjectFile, ADDR third_year_sem2
-                invoke ClearScreen
-
+        invoke ClearScreen
     .ELSEIF yearNum == 4
         invoke LoadSubjectFile, ADDR fourth_year_sem1
         invoke LoadSubjectFile, ADDR fourth_year_sem2
-                invoke ClearScreen
-
+        invoke ClearScreen
     .ENDIF
     
     ; Display available subjects
@@ -576,29 +585,43 @@ EnrollCourse PROC yearNum:DWORD
     ; Handle subject selection
     invoke SelectSubjects
     
-
     ; Wait for user input with options
     invoke StdOut, ADDR newline
-    invoke StdOut, ADDR enhanced_options  ; Replace the press_key prompt
+    invoke StdOut, ADDR enhanced_options
     invoke StdIn, ADDR enroll_buffer, SIZEOF enroll_buffer
     
     ; Check user's choice
     mov al, [enroll_buffer]
     
     .IF al == '1'
-        ; Return to main menu - just return from procedure
-                  invoke ClearScreen
-
+        ; Return to Semester List - just return from procedure
+        invoke ClearScreen
+        ret
+        
     .ELSEIF al == '2'
-        ; Exit the program
-          jmp @enroll_start
-          invoke ClearScreen
+        ; Enroll more subjects (same year) - preserve selections
+        mov preserve_selections, 1
+        invoke ClearScreen
+        jmp @enroll_start
+        
+    .ELSEIF al == '3'
+        ; Back to Year Selection
+        invoke ClearScreen
+        ; Use an indirect approach to avoid the EXTERN issue
+        push yearNum   ; Save yearNum just in case
+        push 0         ; Return address will be popped by year_input
+        jmp year_input ; Jump to year_input (no EXTERN needed)
+        
+    .ELSEIF al == '4'
+        ; Exit program
+        invoke ClearScreen
+        invoke ExitProcess, 0
+        
     .ELSE
-              invoke ClearScreen
-
-      invoke ExitProcess, 0
+        ; Invalid choice, return to semester list
+        invoke ClearScreen
+        ret
     .ENDIF
     ret
-
     
 EnrollCourse ENDP
