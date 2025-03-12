@@ -14,6 +14,7 @@
     year_str4      db "4th Year", 0
     space          db " - ", 0
 
+
     select_prompt   db "Enter subject code to enroll (0 to finish): ", 0
     selected_header db "Selected Subjects:", 10, 0
     code_separator  db ", ", 0
@@ -57,6 +58,9 @@ enhanced_options db "Choose an option:", 13, 10
 .CODE
 
 EXTERNDEF year_input:PROC  ; 
+EXTERNDEF studentName:BYTE  ; Add this line to access the student name
+EXTERNDEF studentIdNum:BYTE 
+
 
 ; Completely revised FindSubjectDetails procedure
 FindSubjectDetails PROC uses esi edi ebx subject_code:PTR BYTE
@@ -417,11 +421,20 @@ SelectSubjects PROC
 @show_final:
     ; Display final list header with extra spacing
     invoke ClearScreen
+    
+    invoke StdOut, ADDR studentName
+    invoke StdOut, ADDR newline
+    
+    invoke StdOut, ADDR studentIdNum
+    invoke StdOut, ADDR newline
+    
+    ; Then continue with subject list
     invoke StdOut, ADDR final_list
     invoke StdOut, ADDR newline    ; Add extra newline for clarity
     invoke StdOut, ADDR subject_header
     invoke StdOut, ADDR line_separator
-    
+
+
     ; Show only selected subjects
     xor ecx, ecx
     

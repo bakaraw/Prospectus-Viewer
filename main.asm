@@ -14,6 +14,14 @@ INCLUDE includes\output_subjects.inc
 INCLUDE includes\enroll_course.inc   ; Include enroll functionality
 
 .DATA
+    name_prompt db 9, 9, 9, "Enter your name: ", 0
+    studentId db  9, 9, 9, "ID Number: ", 0
+    welcome_msg db 9, 9, 9, "Welcome, ", 0
+    
+
+  name_error  db 9, 9, 9, "Invalid name: Name must not contain numbers.", 13, 10, 0
+    id_error    db 9, 9, 9, "Invalid ID: ID must contain 6 numeric digits only.", 13, 10, 0
+
 
     dept        db 9, 9, 9, "  College of Teacher Education", 10, 0
     header      db 9, 9, 9, "Bachelor of Secondary Education", 10, 0
@@ -31,26 +39,122 @@ INCLUDE includes\enroll_course.inc   ; Include enroll functionality
     sem3txt     db 9, 9, "[3] Summer", 10, 10, 0
     enroll_opt  db 9, 9, "[4] Enroll", 10, 10, 0
     againMsg    db 10, "Would you like to select again? [Y/N]: ", 0
+   ; newline     db 13, 10, 0
 
 .DATA?
-    inputBuffer db 4 dup(?)
+   inputBuffer db 4 dup(?)
     yearNum     dd ?
     semNum      dd ?
+    studentName db 50 dup(?)  ; Buffer for student name (up to 50 chars)
+    studentIdNum db 7 dup(?)
 
 .CODE
 
 main PROC
+        invoke ClearScreen
+
+name_input:
+    ; Get student name
+    invoke StdOut, ADDR name_prompt
+    invoke StdIn, ADDR studentName, SIZEOF studentName
+    
+    ; Validate name (letters only)
+    mov ecx, LENGTHOF studentName - 1  ; Maximum length
+    xor esi, esi                      ; String index
+    
+    check_name_char:
+        cmp BYTE PTR [studentName + esi], 0    ; Check for null terminator
+        je name_valid                          ; If null, end of string
+        
+        ; Check if character is a letter (A-Z or a-z) or space
+        mov al, BYTE PTR [studentName + esi]
+        
+        cmp al, ' '                   ; Check for space
+        je valid_name_char
+        
+        cmp al, 'A'                   ; Check if below 'A'
+        jb invalid_name
+        cmp al, 'Z'                   ; Check if between 'A' and 'Z'
+        jbe valid_name_char
+        cmp al, 'a'                   ; Check if below 'a'
+        jb invalid_name
+        cmp al, 'z'                   ; Check if between 'a' and 'z'
+        jbe valid_name_char
+        
+    invalid_name:
+        invoke StdOut, ADDR name_error
+        jmp name_input
+        
+    valid_name_char:
+        inc esi
+        loop check_name_char
+        
+name_valid:
+    ; Name is valid, now get student ID
+    
+id_input:
+    invoke StdOut, ADDR studentId
+    invoke StdIn, ADDR studentIdNum, SIZEOF studentIdNum
+    
+    ; Validate student ID (6 digits only)
+    xor esi, esi                      ; String index
+    xor ecx, ecx                      ; Character counter
+    
+    check_id_char:
+        cmp BYTE PTR [studentIdNum + esi], 0    ; Check for null terminator
+        je check_id_length
+        
+        ; Check if character is a digit (0-9)
+        mov al, BYTE PTR [studentIdNum + esi]
+        
+        cmp al, '0'                   ; Check if below '0'
+        jb invalid_id
+        cmp al, '9'                   ; Check if above '9'
+        ja invalid_id
+        
+        inc esi
+        inc ecx
+        cmp ecx, 6                    ; Max 6 digits
+        jbe check_id_char
+        
+    invalid_id:
+        invoke StdOut, ADDR id_error
+        jmp id_input
+        
+    check_id_length:
+        cmp ecx, 6                    ; Must be exactly 6 digits
+        jne invalid_id
+        
+    ; Student ID is valid, continue with program
+    
+
+
 year_input PROC ;
                invoke ClearScreen
+               
+          
                invoke StdOut, ADDR dept
                invoke StdOut, ADDR header
                invoke StdOut, ADDR header2
                invoke StdOut, ADDR header3
+                
+                 ; Display the fixed student name
+               invoke StdOut, ADDR name_prompt
+               invoke StdOut, ADDR studentName
+               invoke StdOut, ADDR newline
+               
+               ; Display the fixed student ID
+               invoke StdOut, ADDR studentId
+               invoke StdOut, ADDR studentIdNum
+               invoke StdOut, ADDR newline
+               
                invoke StdOut, ADDR prompt
                invoke StdOut, ADDR year1txt
                invoke StdOut, ADDR year2txt
                invoke StdOut, ADDR year3txt
                invoke StdOut, ADDR year4txt
+               
+             
                invoke StdIn, ADDR inputBuffer, SIZEOF inputBuffer
                invoke atodw, ADDR inputBuffer
                mov    yearNum, eax
