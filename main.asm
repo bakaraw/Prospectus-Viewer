@@ -14,8 +14,8 @@ INCLUDE includes\output_subjects.inc
 INCLUDE includes\enroll_course.inc   ; Include enroll functionality
 
 .DATA
-    name_prompt db 9, 9, 9, "Student Name: ", 0
-    studentId db  9, 9, 9, "ID Number: ", 0
+    name_prompt db "Student Name: ", 0
+    studentId db "ID Number: ", 0
     
 
   name_error  db 9, 9, 9, "Invalid name: Name must not contain numbers.", 13, 10, 0
@@ -25,7 +25,7 @@ INCLUDE includes\enroll_course.inc   ; Include enroll functionality
     dept        db 9, 9, 9, "  College of Teacher Education", 10, 0
     header      db 9, 9, 9, "Bachelor of Secondary Education", 10, 0
     header2     db 9, 9, 9, "       Major in Filipino", 10, 10, 0
-    header3     db 9, 9, 9, "           PROSPECTUS", 10, 10, 0
+    header3     db 9, 9, 9, "       ENROLLMENT SYSTEM", 10, 10, 0
     prompt      db "Select your year level:", 10, 0
     year1txt    db 9, 9, "[1] 1st Year", 10, 0
     year2txt    db 9, 9, "[2] 2nd Year", 10, 0
@@ -212,9 +212,6 @@ sem_input PROC
                   jmp    sem_input
             .endif
         .endif
-
-       
-
 
           ; Display subjects based on yearNum & semNum
           invoke ShowSubjects, yearNum, semNum
