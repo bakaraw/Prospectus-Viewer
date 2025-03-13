@@ -26,7 +26,7 @@
     ; newline        db 13, 10, 0
     return_or_exit db "Press 1 to return to main menu, 2 to exit: ", 0
     ; Buffer for storing selected subject codes
-    MAX_SELECTIONS  EQU 9
+    MAX_SELECTIONS  EQU 8
     MAX_CODE_LEN    EQU 10
     selected_codes  db MAX_SELECTIONS * MAX_CODE_LEN dup(0)  ; Initialize with zeros
     code_count      dd 0
