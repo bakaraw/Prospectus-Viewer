@@ -8,6 +8,10 @@
     enroll_sem2    db "2nd Semester", 0
     enroll_summer  db "Summer", 0
     
+    sName db 9, 9, 9, "Student Name: ", 0
+    sId db  9, 9, 9, "ID Number: ", 0
+
+
     year_str1      db "1st Year", 0
     year_str2      db "2nd Year", 0
     year_str3      db "3rd Year", 0
@@ -15,7 +19,7 @@
     space          db " - ", 0
 
 
-    select_prompt   db "Enter subject code to enroll (0 to finish): ", 0
+    select_prompt   db "Enter subject code to enroll (0 to finish, 1 to end and return to Semester Menu): ", 0 
     selected_header db "Selected Subjects:", 10, 0
     code_separator  db ", ", 0
     ; Remove this commented line entirely, as it's causing confusion
@@ -60,6 +64,7 @@ enhanced_options db "Choose an option:", 13, 10
 EXTERNDEF year_input:PROC  ; 
 EXTERNDEF studentName:BYTE  ; Add this line to access the student name
 EXTERNDEF studentIdNum:BYTE 
+EXTERNDEF sem_input:PROC 
 
 
 ; Completely revised FindSubjectDetails procedure
@@ -114,7 +119,25 @@ FindSubjectDetails PROC uses esi edi ebx subject_code:PTR BYTE
     test al, al            ; End of input code?
     jz @end_of_input_code
     
+    ; Convert both to uppercase for case-insensitive comparison
+    push eax
+    cmp al, 'a'
+    jb @al_not_lowercase3
+    cmp al, 'z'
+    ja @al_not_lowercase3
+    sub al, 32             ; Convert lowercase to uppercase
+    
+@al_not_lowercase3:
+    
+    cmp bl, 'a'
+    jb @bl_not_lowercase3
+    cmp bl, 'z'
+    ja @bl_not_lowercase3
+    sub bl, 32             ; Convert lowercase to uppercase
+    
+@bl_not_lowercase3:
     cmp al, bl
+    pop eax
     jne @code_mismatch
     
     inc esi
@@ -259,7 +282,26 @@ FindSubjectDetailsQuiet PROC uses esi edi ebx subject_code:PTR BYTE
     jz @possible_match
     
     mov bl, [esi]
+    
+    ; Convert both to uppercase for case-insensitive comparison
+    push eax
+    cmp al, 'a'
+    jb @al_not_lowercase2
+    cmp al, 'z'
+    ja @al_not_lowercase2
+    sub al, 32             ; Convert lowercase to uppercase
+    
+@al_not_lowercase2:
+    
+    cmp bl, 'a'
+    jb @bl_not_lowercase2
+    cmp bl, 'z'
+    ja @bl_not_lowercase2
+    sub bl, 32             ; Convert lowercase to uppercase
+    
+@bl_not_lowercase2:
     cmp al, bl
+    pop eax
     jne @no_match
     
     inc esi
@@ -326,7 +368,10 @@ SelectSubjects PROC
     ; Check for exit (if user entered "0")
     cmp BYTE PTR [input_buffer], '0'
     je @show_final
-    
+
+     cmp BYTE PTR [input_buffer], '1'
+    je sem_input
+    ;
     ; Check if subject already in list
     mov ecx, 0
 @check_duplicate:
@@ -351,6 +396,21 @@ SelectSubjects PROC
     test bl, bl
     jz @next_code          ; End of input code
     
+    ; Convert both to uppercase for case-insensitive comparison
+    cmp al, 'a'
+    jb @al_not_lowercase
+    cmp al, 'z'
+    ja @al_not_lowercase
+    sub al, 32             ; Convert lowercase to uppercase
+    
+@al_not_lowercase:
+    cmp bl, 'a'
+    jb @bl_not_lowercase
+    cmp bl, 'z'
+    ja @bl_not_lowercase
+    sub bl, 32             ; Convert lowercase to uppercase
+    
+@bl_not_lowercase:
     cmp al, bl
     jne @next_code
     
@@ -421,10 +481,11 @@ SelectSubjects PROC
 @show_final:
     ; Display final list header with extra spacing
     invoke ClearScreen
-    
+    invoke StdOut, ADDR sName
     invoke StdOut, ADDR studentName
     invoke StdOut, ADDR newline
     
+    invoke StdOut, ADDR sId
     invoke StdOut, ADDR studentIdNum
     invoke StdOut, ADDR newline
     
@@ -526,6 +587,24 @@ LoadSubjectFile PROC filePathAddr:DWORD
     xor eax, eax  ; Failure
     ret
 LoadSubjectFile ENDP
+
+
+ClearSubjectBuffer PROC
+    push edi
+    push ecx
+    
+    ; Clear the subject buffer
+    mov edi, OFFSET subject_buffer
+    mov ecx, SIZEOF subject_buffer
+    mov al, 0
+    rep stosb
+    
+    pop ecx
+    pop edi
+    ret
+ClearSubjectBuffer ENDP
+
+
 ; Main enrollment procedure (fixed parameter list)
 EnrollCourse PROC yearNum:DWORD
     LOCAL preserve_selections:DWORD
@@ -533,9 +612,15 @@ EnrollCourse PROC yearNum:DWORD
     ; Initialize preserve flag
     mov preserve_selections, 0
     
+
+
 @enroll_start:    ; Add this label for the option to restart enrollment
     ; Only clear selections if not preserving them
+            invoke ClearScreen
+
     .IF preserve_selections == 0
+
+        invoke ClearScreen
         ; Initialize code count
         mov code_count, 0
         
@@ -550,7 +635,8 @@ EnrollCourse PROC yearNum:DWORD
     
     ; Reset preserve flag
     mov preserve_selections, 0
-    
+        invoke ClearSubjectBuffer
+
     invoke ClearScreen
     invoke StdOut, ADDR enroll_header
     
@@ -569,6 +655,9 @@ EnrollCourse PROC yearNum:DWORD
     
     ; Load the subject file for the selected year
     .IF yearNum == 1
+    invoke ClearScreen
+        invoke ClearSubjectBuffer
+
         invoke LoadSubjectFile, ADDR first_year_sem1
         invoke StdOut, ADDR newline
         invoke LoadSubjectFile, ADDR first_year_sem2
@@ -576,15 +665,24 @@ EnrollCourse PROC yearNum:DWORD
         invoke LoadSubjectFile, ADDR first_year_summer
         invoke ClearScreen
     .ELSEIF yearNum == 2
+        invoke ClearScreen
+    invoke ClearSubjectBuffer
+
         invoke LoadSubjectFile, ADDR second_year_sem1
         invoke LoadSubjectFile, ADDR second_year_sem2
         invoke LoadSubjectFile, ADDR second_year_summer
         invoke ClearScreen
     .ELSEIF yearNum == 3
+        invoke ClearScreen
+    invoke ClearSubjectBuffer
+
         invoke LoadSubjectFile, ADDR third_year_sem1
         invoke LoadSubjectFile, ADDR third_year_sem2
         invoke ClearScreen
     .ELSEIF yearNum == 4
+        invoke ClearScreen
+    invoke ClearSubjectBuffer
+
         invoke LoadSubjectFile, ADDR fourth_year_sem1
         invoke LoadSubjectFile, ADDR fourth_year_sem2
         invoke ClearScreen
@@ -612,7 +710,9 @@ EnrollCourse PROC yearNum:DWORD
         ret
         
     .ELSEIF al == '2'
-        ; Enroll more subjects (same year) - preserve selections
+        ; Enroll more subjects (same year) - preserve selections\
+                invoke ClearScreen
+
         mov preserve_selections, 1
         invoke ClearScreen
         jmp @enroll_start
