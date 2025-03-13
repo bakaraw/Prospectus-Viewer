@@ -38,8 +38,11 @@ INCLUDE includes\enroll_course.inc   ; Include enroll functionality
     sem2txt     db 9, 9, "[2] 2nd Semester", 10, 0
     sem3txt     db 9, 9, "[3] Summer", 10, 10, 0
     enroll_opt  db 9, 9, "[4] Enroll", 10, 10, 0
-    againMsg    db 10, "Would you like to select again? [Y/N]: ", 0
+        viewOptions db 10, "[1] Back to main menu [2] Back to Semester Menu [3] Exit: ", 0
+
    ; newline     db 13, 10, 0
+       back_opt    db 9, 9, "[5] Back to Year Selection", 10, 10, 0
+
 
 .DATA?
    inputBuffer db 4 dup(?)
@@ -131,8 +134,7 @@ id_input:
 
 year_input PROC ;
                invoke ClearScreen
-               
-          
+            
                invoke StdOut, ADDR dept
                invoke StdOut, ADDR header
                invoke StdOut, ADDR header2
@@ -168,6 +170,12 @@ year_input PROC ;
         invoke StdOut, ADDR newline
 
     sem_input:
+            invoke ClearScreen
+
+      invoke StdOut, ADDR dept
+               invoke StdOut, ADDR header
+               invoke StdOut, ADDR header2
+               invoke StdOut, ADDR header3
               invoke StdOut, ADDR prompt2
               invoke StdOut, ADDR sem1txt
               invoke StdOut, ADDR sem2txt
@@ -175,12 +183,21 @@ year_input PROC ;
                   invoke StdOut, ADDR sem3txt
               .endif
                invoke StdOut, ADDR enroll_opt 
+                   invoke StdOut, ADDR back_opt      ; Add the back option
+
               invoke StdIn, ADDR inputBuffer, SIZEOF inputBuffer
               invoke atodw, ADDR inputBuffer
               mov    semNum, eax
               invoke dwtoa, semNum, ADDR inputBuffer
               
+
+               .if semNum == 5                   ; Check for the back option
+        jmp year_input                ; Go back to year input
+        invoke ClearScreen
+    .endif
+
          .if semNum == 4   ; Handle the enroll option
+         invoke ClearScreen
               invoke EnrollCourse, yearNum     ; Call the enrollment procedure
         .endif
 
@@ -198,14 +215,20 @@ year_input PROC ;
           ; Display subjects based on yearNum & semNum
           invoke ShowSubjects, yearNum, semNum
 
-          invoke StdOut, ADDR againMsg
+          invoke StdOut, ADDR viewOptions
           invoke StdIn, ADDR inputBuffer, SIZEOF inputBuffer
 
-    .if inputBuffer[0] == 'Y' || inputBuffer[0] == 'y'
-          jmp    year_input
-    .endif
-
-          invoke ExitProcess, 0
+        mov al, byte ptr [inputBuffer]
+        .IF al == '1'
+            ; Option 1: Select again (go back to year selection)
+            jmp year_input
+        .ELSEIF al == '2'
+            ; Option 2: Back to semester selection for current year
+            jmp sem_input
+        .ELSE
+            ; Option 3 or anything else: Exit
+            invoke ExitProcess, 0
+        .ENDIF
 year_input ENDP
 main ENDP
 

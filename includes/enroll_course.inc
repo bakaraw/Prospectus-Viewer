@@ -15,6 +15,7 @@
     space          db " - ", 0
 
 
+
     select_prompt   db "Enter subject code to enroll (0 to finish): ", 0
     selected_header db "Selected Subjects:", 10, 0
     code_separator  db ", ", 0
@@ -60,6 +61,7 @@ enhanced_options db "Choose an option:", 13, 10
 EXTERNDEF year_input:PROC  ; 
 EXTERNDEF studentName:BYTE  ; Add this line to access the student name
 EXTERNDEF studentIdNum:BYTE 
+EXTERNDEF 
 
 
 ; Completely revised FindSubjectDetails procedure
