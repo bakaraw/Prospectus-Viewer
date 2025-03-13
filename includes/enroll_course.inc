@@ -64,7 +64,7 @@ enhanced_options db "Choose an option:", 13, 10
 EXTERNDEF year_input:PROC  ; 
 EXTERNDEF studentName:BYTE  ; Add this line to access the student name
 EXTERNDEF studentIdNum:BYTE 
-;EXTERNDEF sem_input:PROC 
+EXTERNDEF sem_input:PROC 
 
 
 ; Completely revised FindSubjectDetails procedure
@@ -368,7 +368,10 @@ SelectSubjects PROC
     ; Check for exit (if user entered "0")
     cmp BYTE PTR [input_buffer], '0'
     je @show_final
-    
+
+     cmp BYTE PTR [input_buffer], '1'
+    je sem_input
+    ;
     ; Check if subject already in list
     mov ecx, 0
 @check_duplicate:

@@ -53,7 +53,6 @@ INCLUDE includes\enroll_course.inc   ; Include enroll functionality
     studentIdNum db 7 dup(?)
 
 .CODE
-
 main PROC
         invoke ClearScreen
 
@@ -169,7 +168,7 @@ year_input PROC ;
     .ENDIF
    
     
-    sem_input:
+sem_input PROC
             invoke ClearScreen
 
       invoke StdOut, ADDR dept
@@ -234,6 +233,8 @@ year_input PROC ;
             ; Option 3 or anything else: Exit
             invoke ExitProcess, 0
         .ENDIF
+            ret
+sem_input ENDP
 year_input ENDP
 main ENDP
 
