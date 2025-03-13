@@ -38,6 +38,7 @@
     line_separator  db "================================================================================", 0ah, 0
     subject_error   db "Subject code not found!", 0ah, 0
     
+
     ; Keep these definitions
     total_units_line db "                                                            TOTAL UNITS:    ", 0
     ;newline          db 13, 10, 0  ; Define newline
