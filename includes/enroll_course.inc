@@ -19,7 +19,7 @@
     space          db " - ", 0
 
 
-    select_prompt   db "Enter subject code to enroll (0 to finish and 1 Back to Semester Menu): ", 0
+    select_prompt   db "Enter subject code to enroll (0 to finish, 1 to end and return to Semester Menu): ", 0 
     selected_header db "Selected Subjects:", 10, 0
     code_separator  db ", ", 0
     ; Remove this commented line entirely, as it's causing confusion
