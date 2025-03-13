@@ -14,9 +14,8 @@ INCLUDE includes\output_subjects.inc
 INCLUDE includes\enroll_course.inc   ; Include enroll functionality
 
 .DATA
-    name_prompt db 9, 9, 9, "Enter your name: ", 0
+    name_prompt db 9, 9, 9, "Student Name: ", 0
     studentId db  9, 9, 9, "ID Number: ", 0
-    welcome_msg db 9, 9, 9, "Welcome, ", 0
     
 
   name_error  db 9, 9, 9, "Invalid name: Name must not contain numbers.", 13, 10, 0
@@ -32,6 +31,8 @@ INCLUDE includes\enroll_course.inc   ; Include enroll functionality
     year2txt    db 9, 9, "[2] 2nd Year", 10, 0
     year3txt    db 9, 9, "[3] 3rd Year", 10, 0
     year4txt    db 9, 9, "[4] 4th Year", 10, 10, 0
+    choice_Promt      db "Enter choice: ", 0
+
 
     prompt2     db "Select semester:", 10, 0
     sem1txt     db 9, 9, "[1] 1st Semester", 10, 0
@@ -156,19 +157,18 @@ year_input PROC ;
                invoke StdOut, ADDR year3txt
                invoke StdOut, ADDR year4txt
                
-             
+                invoke StdOut, ADDR choice_Promt             
+            
                invoke StdIn, ADDR inputBuffer, SIZEOF inputBuffer
                invoke atodw, ADDR inputBuffer
                mov    yearNum, eax
                invoke dwtoa, yearNum, ADDR inputBuffer
 
-        ; If the user enters an invalid year
-        .if yearNum < 1 || yearNum > 4
-               jmp    year_input
-        .endif
-
-        invoke StdOut, ADDR newline
-
+     .if yearNum < 1 || yearNum > 4
+        jmp year_input
+    .ENDIF
+   
+    
     sem_input:
             invoke ClearScreen
 
@@ -179,11 +179,13 @@ year_input PROC ;
               invoke StdOut, ADDR prompt2
               invoke StdOut, ADDR sem1txt
               invoke StdOut, ADDR sem2txt
+
               .if yearNum < 3  ; 1st & 2nd year students have summer
                   invoke StdOut, ADDR sem3txt
               .endif
                invoke StdOut, ADDR enroll_opt 
                    invoke StdOut, ADDR back_opt      ; Add the back option
+                              invoke StdOut, ADDR choice_Promt             
 
               invoke StdIn, ADDR inputBuffer, SIZEOF inputBuffer
               invoke atodw, ADDR inputBuffer
@@ -211,6 +213,9 @@ year_input PROC ;
                   jmp    sem_input
             .endif
         .endif
+
+       
+
 
           ; Display subjects based on yearNum & semNum
           invoke ShowSubjects, yearNum, semNum
